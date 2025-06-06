@@ -516,8 +516,15 @@ def run(
                         reason = TerminationReason.FIVEFOLD_REPETITION.value
                 elif (
                     last_message.lower().strip() != move_was_made.lower().strip()
-                    # TODO: fix max llm turns for NoN, seems like missing chat history broke this check
-                    and len(chat_result.chat_history) >= max_llm_turns * 2
+                    and (
+                        len(chat_result.chat_history)
+                        if chat_result.chat_history is not None
+                        else sum(
+                            len(msgs)
+                            for msgs in getattr(player, "_oai_messages", {}).values()
+                        )
+                    )
+                    >= max_llm_turns * 2
                 ):
                     winner = (
                         player_black.name
